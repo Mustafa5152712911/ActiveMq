@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="cb4f9f14-46f7-423b-a6ec-659e847d1e59" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="503ab21c-bcb0-481f-be83-dd046f2b2dd5" >
+		<file:connection workingDir="/home/mustafa/Documents" />
+	</file:config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="b7b5ae60-3abd-40d0-af0c-e813edb37794" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<flow name="activemqFlow" doc:id="efc02616-d9cb-4777-ad6e-4d7f11e21b43" >
+		<http:listener doc:name="Listener" doc:id="8179abeb-406c-4e71-8f1e-fbd28181dc3c" config-ref="HTTP_Listener_config" path="/active" allowedMethods="POST"/>
+		<file:read doc:id="83d030d7-44d8-49dd-a773-72c3fde14009" config-ref="File_Config" path="/home/mustafa/Documents/Vehicles.txt"/>
+		<jms:publish doc:id="8a7ca446-d88a-4c7c-9a6c-b9f43946bdfe" config-ref="JMS_Config" destination="MuleTest"/>
+		<jms:consume doc:name="Consume" doc:id="67781248-d5e0-4c1d-9890-cf42669d0c34" config-ref="JMS_Config" destination="MuleTest">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:consume>
+	</flow>
+</mule>
